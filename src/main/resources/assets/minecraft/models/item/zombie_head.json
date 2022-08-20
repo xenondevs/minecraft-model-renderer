@@ -1,0 +1,6 @@
+{
+  "parent": "item/head_template",
+  "textures": {
+    "0": "entity/zombie/zombie"
+  }
+}

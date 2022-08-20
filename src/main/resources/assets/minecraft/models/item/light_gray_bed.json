@@ -1,0 +1,6 @@
+{
+  "parent": "item/bed_template",
+  "textures": {
+    "0": "entity/bed/light_gray"
+  }
+}

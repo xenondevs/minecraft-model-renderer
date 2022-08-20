@@ -1,0 +1,6 @@
+{
+    "parent": "block/chest_template",
+    "textures": {
+        "0": "entity/chest/ender"
+    }
+}
