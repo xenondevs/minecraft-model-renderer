@@ -29,6 +29,6 @@ internal class DirectoryResourcePack(private val dir: File) : ResourcePack {
 internal object InternalResourcePack : ResourcePack {
     
     override fun getResourceStream(path: String): InputStream? =
-        ResourceLoader::class.java.getResourceAsStream("/assets/$path")
+        ResourceLoader::class.java.getResourceAsStream("/$path")
     
 }
