@@ -1,0 +1,46 @@
+{
+    "parent": "block/block",
+    "textures": {
+        "wood": "block/dark_oak_planks",
+        "side": "block/bell_side",
+        "bottom": "block/bell_bottom",
+        "top": "block/bell_top"
+    },
+    "elements": [
+      {
+        "from": [5, 6, 5],
+        "to": [11, 13, 11],
+        "faces": {
+          "north": {"uv": [1, 0, 7, 7], "texture": "#side"},
+          "east": {"uv": [1, 0, 7, 7], "texture": "#side"},
+          "south": {"uv": [1, 0, 7, 7], "texture": "#side"},
+          "west": {"uv": [1, 0, 7, 7], "texture": "#side"},
+          "up": {"uv": [1, 1, 7, 7], "texture": "#top"}
+        }
+      },
+      {
+        "from": [4, 4, 4],
+        "to": [12, 6, 12],
+        "faces": {
+          "north": {"uv": [0, 7, 8, 9], "texture": "#side"},
+          "east": {"uv": [0, 7, 8, 9], "texture": "#side"},
+          "south": {"uv": [0, 7, 8, 9], "texture": "#side"},
+          "west": {"uv": [0, 7, 8, 9], "texture": "#side"},
+          "up": {"uv": [0, 0, 8, 8], "texture": "#top"},
+          "down": {"uv": [0, 0, 8, 8], "texture": "#bottom"}
+        }
+      },
+      {
+        "from": [7, 13, 0],
+        "to": [9, 15, 13],
+        "faces": {
+          "north": {"uv": [5, 4, 7, 6], "texture": "#wood"},
+          "east": {"uv": [2, 3, 14, 5], "texture": "#wood"},
+          "south": {"uv": [5, 4, 7, 6], "texture": "#wood"},
+          "west": {"uv": [2, 2, 14, 4], "texture": "#wood"},
+          "up": {"uv": [2, 3, 14, 5], "rotation": 270, "texture": "#wood"},
+          "down": {"uv": [2, 3, 14, 5], "rotation": 90, "texture": "#wood"}
+        }
+      }
+    ]
+}
