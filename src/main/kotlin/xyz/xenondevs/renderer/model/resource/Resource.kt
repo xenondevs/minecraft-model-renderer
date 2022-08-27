@@ -1,7 +1,7 @@
 package xyz.xenondevs.renderer.model.resource
 
-private val NAMESPACED_ENTRY = Regex("""^(\w*):([\w/]*)$""")
-private val NON_NAMESPACED_ENTRY = Regex("""^([\w/]*)$""")
+private val NAMESPACED_ENTRY = Regex("""^(\w*):([\w/-]*)$""")
+private val NON_NAMESPACED_ENTRY = Regex("""^([\w/-]*)$""")
 
 internal data class ResourceId(val namespace: String, val path: String) {
     
