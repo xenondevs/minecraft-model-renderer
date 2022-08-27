@@ -19,7 +19,7 @@ class MinecraftModelRenderer(
     private val cropHorizontal: Double = 0.1
 ) {
     
-    private val loader = ResourceLoader(resourcePacks, useInternalResources)
+    val loader = ResourceLoader(resourcePacks, useInternalResources)
     
     fun renderModel(model: String): BufferedImage {
         val scene = Scene(

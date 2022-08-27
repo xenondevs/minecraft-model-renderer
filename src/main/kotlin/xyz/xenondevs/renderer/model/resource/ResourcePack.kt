@@ -4,13 +4,13 @@ import java.io.File
 import java.io.InputStream
 import java.util.zip.ZipFile
 
-internal interface ResourcePack {
+interface ResourcePack {
     
     fun getResourceStream(path: String): InputStream?
     
 }
 
-internal class ZipResourcePack(file: File) : ResourcePack {
+class ZipResourcePack(file: File) : ResourcePack {
     
     private val zipFile = ZipFile(file)
     
