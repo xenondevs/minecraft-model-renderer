@@ -13,7 +13,7 @@ import kotlin.math.sin
 internal fun BufferedImage.getWithUV(fromX: Int, fromY: Int, toX: Int, toY: Int): BufferedImage {
     val width = abs(toX - fromX)
     val height = abs(toY - fromY)
-    val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+    val image = BufferedImage(width.coerceAtLeast(1), height.coerceAtLeast(1), BufferedImage.TYPE_INT_ARGB)
     
     val stepX = if (fromX < toX) 1 else -1
     val stepY = if (fromY < toY) 1 else -1
