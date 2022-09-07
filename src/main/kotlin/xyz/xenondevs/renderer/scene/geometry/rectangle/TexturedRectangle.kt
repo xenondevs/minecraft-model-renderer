@@ -40,9 +40,17 @@ internal class TexturedRectangle(
         val v = (vVec.x * rel.x + vVec.y * rel.y + vVec.z * rel.z) / (vVec.x * vVec.x + vVec.y * vVec.y + vVec.z * vVec.z)
         if (u < 0 || u > 1 || v < 0 || v > 1) return null
         
-        val texture = if (normal.dot(scene.camera.forward) < 0) textureFront else textureBack
+        val invertX: Boolean
+        val texture: BufferedImage
+        if (normal.dot(scene.camera.forward) < 0) {
+            invertX = false
+            texture = textureFront
+        } else {
+            invertX = true
+            texture = textureBack
+        }
         
-        val texX = min((u * texture.width).toInt(), texture.width - 1)
+        val texX = min(if (invertX) (texture.width - u * texture.width).toInt() else (u * texture.width).toInt(), texture.width - 1)
         val texY = min((texture.height - v * texture.height).toInt(), texture.height - 1)
         
         val color = texture.getRGB(texX, texY)
