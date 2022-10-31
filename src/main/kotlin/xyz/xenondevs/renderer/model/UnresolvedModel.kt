@@ -25,7 +25,16 @@ private fun JsonObject.getVector3dOrNull(name: String): Vector3d? {
 
 internal class UnresolvedModel(id: ResourceId, val loader: ResourceLoader, obj: JsonObject) {
     
-    private val parent: UnresolvedModel? = obj.getString("parent")?.let(loader.modelCache::get) ?: if (id.path != "block/block") loader.modelCache.get("block/block") else null
+    private var layered = false
+    private val parent: UnresolvedModel? = obj.getString("parent")?.let {
+        if (ResourceId.of(it).toString() != "minecraft:builtin/generated") {
+            return@let loader.modelCache.get(it)
+        } else {
+            layered = true
+            return@let null
+        }
+    } ?: if (id.path.startsWith("block/") && id.path != "block/block") loader.modelCache.get("block/block") else null
+    
     private val textureNames: Map<String, String> = obj.getOrNull("textures")?.asJsonObject?.entrySet()?.associate { it.key to it.value.asString } ?: emptyMap()
     private val elements: List<UnresolvedElement> = obj.getOrNull("elements")?.asJsonArray?.map { UnresolvedElement(this, it.asJsonObject) } ?: emptyList()
     
@@ -52,6 +61,7 @@ internal class UnresolvedModel(id: ResourceId, val loader: ResourceLoader, obj: 
         var translation: Vector3d? = this.translation
         var scale: Vector3d? = this.scale
         
+        var layered = false
         var current: UnresolvedModel? = this
         while (current != null) {
             if (elements == null) {
@@ -72,26 +82,41 @@ internal class UnresolvedModel(id: ResourceId, val loader: ResourceLoader, obj: 
             if (ambientOcclusion == null)
                 ambientOcclusion = current.ambientOcclusion
             
+            layered = current.layered
             current = current.parent
         }
         
-        textures = textures.entries.associateTo(HashMap()) { (key, value) ->
-            var value = value
-            while (value.startsWith('#')) {
-                value = textures[value.substring(1)] ?: break
+        if (layered) {
+            val layers = ArrayList<BufferedImage>()
+            
+            // negative layers are ignored, layer2 is ignored if there is no layer1 
+            var i = 0
+            while (true) {
+                val texture = textureNames["layer$i"] ?: break
+                layers += loader.textureCache.get(texture, 0, 0.0, 0.0, 1.0, 1.0)
+                i++
             }
             
-            key to value
+            return LayeredModel(layers)
+        } else {
+            textures = textures.entries.associateTo(HashMap()) { (key, value) ->
+                var value = value
+                while (value.startsWith('#')) {
+                    value = textures[value.substring(1)] ?: break
+                }
+                
+                key to value
+            }
+            
+            val resolvedElements = elements?.map { it.resolve(textures) } ?: emptyList()
+            return GeometricalModel(
+                resolvedElements,
+                ambientOcclusion ?: true,
+                rotation ?: Vector3d.ZERO,
+                translation ?: Vector3d.ZERO,
+                scale ?: Vector3d.ONE
+            )
         }
-        
-        val resolvedElements = elements?.map { it.resolve(textures) } ?: emptyList()
-        return Model(
-            resolvedElements,
-            ambientOcclusion ?: true,
-            rotation ?: Vector3d.ZERO,
-            translation ?: Vector3d.ZERO, 
-            scale ?: Vector3d.ONE
-        )
     }
     
 }

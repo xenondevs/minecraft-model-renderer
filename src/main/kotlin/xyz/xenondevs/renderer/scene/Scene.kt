@@ -1,7 +1,7 @@
 package xyz.xenondevs.renderer.scene
 
 import xyz.xenondevs.renderer.model.Axis
-import xyz.xenondevs.renderer.model.Model
+import xyz.xenondevs.renderer.model.GeometricalModel
 import xyz.xenondevs.renderer.scene.camera.Camera
 import xyz.xenondevs.renderer.scene.camera.Ray
 import xyz.xenondevs.renderer.scene.geometry.GeometryObject
@@ -13,7 +13,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 internal class Scene(
-    private val model: Model,
+    private val model: GeometricalModel,
     private val width: Int,
     private val height: Int,
     cameraDistance: Double,

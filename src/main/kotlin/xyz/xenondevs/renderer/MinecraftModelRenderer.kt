@@ -1,5 +1,7 @@
 package xyz.xenondevs.renderer
 
+import xyz.xenondevs.renderer.model.GeometricalModel
+import xyz.xenondevs.renderer.model.LayeredModel
 import xyz.xenondevs.renderer.model.resource.ResourceLoader
 import xyz.xenondevs.renderer.scene.Scene
 import java.awt.image.BufferedImage
@@ -21,15 +23,23 @@ class MinecraftModelRenderer(
     
     val loader = ResourceLoader(resourcePacks, useInternalResources)
     
-    fun renderModel(model: String): BufferedImage {
-        val scene = Scene(
-            loader.modelCache.get(model).resolve(),
-            renderWidth, renderHeight,
-            cameraDistance, fov,
-            cropVertical, cropHorizontal
-        )
-        
-        return scene.render(exportWidth, exportHeight)
+    fun renderModel(modelPath: String): BufferedImage {
+        when (val model = loader.modelCache.get(modelPath).resolve()) {
+            is GeometricalModel -> {
+                val scene = Scene(
+                    model,
+                    renderWidth, renderHeight,
+                    cameraDistance, fov,
+                    cropVertical, cropHorizontal
+                )
+                
+                return scene.render(exportWidth, exportHeight)
+            }
+            
+            is LayeredModel -> {
+                return model.toImage()
+            }
+        }
     }
     
     fun renderModelToFile(model: String, file: File) {
