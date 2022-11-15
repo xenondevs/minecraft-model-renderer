@@ -190,7 +190,12 @@ internal class UnresolvedTexture(val element: UnresolvedElement, direction: Dire
     }
     
     fun resolve(textures: Map<String, String>): BufferedImage {
-        return element.model.loader.textureCache.get(textures[texture]!!, rotation, fromX, fromY, toX, toY)
+        return element.model.loader.textureCache.get(
+            textures[texture] ?: throw IllegalStateException("Undefined texture: $texture. Available: $textures"),
+            rotation,
+            fromX, fromY,
+            toX, toY
+        )
     }
     
     private fun getDynamicUV(parent: UnresolvedElement, direction: Direction): DoubleArray {
