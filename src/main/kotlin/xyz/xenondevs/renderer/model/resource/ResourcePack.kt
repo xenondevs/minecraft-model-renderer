@@ -1,8 +1,10 @@
 package xyz.xenondevs.renderer.model.resource
 
-import java.io.File
 import java.io.InputStream
-import java.util.zip.ZipFile
+import java.nio.file.FileSystems
+import java.nio.file.Path
+import kotlin.io.path.exists
+import kotlin.io.path.inputStream
 
 interface ResourcePack {
     
@@ -10,19 +12,19 @@ interface ResourcePack {
     
 }
 
-class ZipResourcePack(file: File) : ResourcePack {
+class ZipResourcePack(file: Path) : ResourcePack {
     
-    private val zipFile = ZipFile(file)
+    private val fs = FileSystems.newFileSystem(file)
     
     override fun getResourceStream(path: String): InputStream? =
-        zipFile.getEntry(path)?.let { zipFile.getInputStream(it) }
+        fs.getPath(path).takeIf(Path::exists)?.inputStream()
     
 }
 
-internal class DirectoryResourcePack(private val dir: File) : ResourcePack {
+internal class DirectoryResourcePack(private val dir: Path) : ResourcePack {
     
     override fun getResourceStream(path: String): InputStream? =
-        File(dir, path).takeIf(File::exists)?.inputStream()
+        dir.resolve(path).takeIf(Path::exists)?.inputStream()
     
 }
 

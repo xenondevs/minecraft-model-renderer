@@ -2,11 +2,13 @@ package xyz.xenondevs.renderer.model.resource
 
 import xyz.xenondevs.renderer.model.cache.ModelCache
 import xyz.xenondevs.renderer.model.cache.TextureCache
-import java.io.File
 import java.io.InputStream
+import java.nio.file.Path
+import kotlin.io.path.extension
+import kotlin.io.path.isDirectory
 
 class ResourceLoader(
-    packs: List<File>,
+    packs: List<Path>,
     useInternalResources: Boolean
 ) {
     
@@ -16,7 +18,7 @@ class ResourceLoader(
         
         addAll(packs.map {
             when {
-                it.isDirectory -> DirectoryResourcePack(it)
+                it.isDirectory() -> DirectoryResourcePack(it)
                 it.extension.equals("zip", true) -> ZipResourcePack(it)
                 else -> throw IllegalArgumentException("Unsupported resource pack format: ${it.extension}")
             }

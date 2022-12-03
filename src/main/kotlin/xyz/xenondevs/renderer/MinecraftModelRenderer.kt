@@ -6,14 +6,16 @@ import xyz.xenondevs.renderer.model.resource.ResourceLoader
 import xyz.xenondevs.renderer.scene.Scene
 import java.awt.image.BufferedImage
 import java.io.File
+import java.nio.file.Path
 import javax.imageio.ImageIO
+import kotlin.io.path.outputStream
 
 class MinecraftModelRenderer(
     private val renderWidth: Int,
     private val renderHeight: Int,
     private val exportWidth: Int,
     private val exportHeight: Int,
-    resourcePacks: List<File>,
+    resourcePacks: List<Path>,
     useInternalResources: Boolean = true,
     private val cameraDistance: Double = 40.0,
     private val fov: Double = 0.95,
@@ -44,6 +46,10 @@ class MinecraftModelRenderer(
     
     fun renderModelToFile(model: String, file: File) {
         ImageIO.write(renderModel(model), "png", file)
+    }
+    
+    fun renderModelToFile(model: String, file: Path) {
+        file.outputStream().use { out -> ImageIO.write(renderModel(model), "png", out) }
     }
     
 }
