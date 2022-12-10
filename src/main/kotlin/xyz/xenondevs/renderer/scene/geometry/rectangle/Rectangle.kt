@@ -21,11 +21,6 @@ internal abstract class Rectangle(
     var ambientOcclusion: Boolean
 ) : GeometryObject {
     
-    private var a: Double = 0.0
-    private var b: Double = 0.0
-    private var c: Double = 0.0
-    private var d: Double = 0.0
-    
     protected var multiplier: Double = 0.0
     
     init {
@@ -48,12 +43,6 @@ internal abstract class Rectangle(
             normal = normalPoint.rotate(rotationOrigin, axis, degrees) - origin
         }
         
-        val (a, b, c) = uVec x vVec
-        this.a = a
-        this.b = b
-        this.c = c
-        this.d = a * origin.x + b * origin.y + c * origin.z
-        
         multiplier = if (ambientOcclusion) {
             val dif = acos(normal.dot(scene.camera.right)) % Math.PI
             if (dif < Math.PI / 2) {
@@ -65,7 +54,11 @@ internal abstract class Rectangle(
     protected fun traceToVector(ray: Ray): Pair<Vector3d, Double>? {
         val (start, direction) = ray
         
-        val t = (d - a * start.x - b * start.y - c * start.z) / (a * direction.x + b * direction.y + c * direction.z)
+        val denom = normal.x * direction.x + normal.y * direction.y + normal.z * direction.z
+        if (denom > 0)
+            return null
+        
+        val t = ((origin.x - ray.origin.x) * normal.x + (origin.y - ray.origin.y) * normal.y + (origin.z - ray.origin.z) * normal.z) / denom
         
         if (t < 0 || t.isInfinite() || t.isNaN())
             return null
