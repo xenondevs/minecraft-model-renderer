@@ -1,11 +1,11 @@
 package xyz.xenondevs.renderer.scene.camera
 
-import xyz.xenondevs.renderer.vector.Point3d
-import xyz.xenondevs.renderer.vector.Vector3d
+import org.joml.Vector3f
+import xyz.xenondevs.renderer.vector.Point3f
 
-internal data class Ray(val origin: Point3d, val direction: Vector3d)
+internal data class Ray(val origin: Point3f, val direction: Vector3f)
 
-internal class Intersection(val multiplier: Double, val t: Double, val color: Int): Comparable<Intersection> {
+internal class Intersection(val multiplier: Float, val t: Float, val color: Int): Comparable<Intersection> {
     
     override fun compareTo(other: Intersection): Int {
         return t.compareTo(other.t)

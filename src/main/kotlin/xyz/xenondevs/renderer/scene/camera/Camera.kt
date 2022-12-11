@@ -1,25 +1,30 @@
 package xyz.xenondevs.renderer.scene.camera
 
-import xyz.xenondevs.renderer.vector.Point3d
-import xyz.xenondevs.renderer.vector.Vector3d
+import org.joml.Vector3f
+import xyz.xenondevs.renderer.vector.Point3f
+import xyz.xenondevs.renderer.vector.crossed
+import xyz.xenondevs.renderer.vector.minus
+import xyz.xenondevs.renderer.vector.normalized
+import xyz.xenondevs.renderer.vector.plus
+import xyz.xenondevs.renderer.vector.times
 import kotlin.math.atan
 
-internal class Camera(val origin: Point3d, fov: Double, target: Vector3d, up: Vector3d, width: Int, height: Int) {
+internal class Camera(val origin: Point3f, fov: Float, target: Vector3f, up: Vector3f, width: Int, height: Int) {
     
-    val forward: Vector3d
-    val up: Vector3d
-    val right: Vector3d
-    val w: Double
-    val h: Double
+    val forward: Vector3f
+    val up: Vector3f
+    val right: Vector3f
+    val w: Float
+    val h: Float
     
     private val rayCache: Array<Array<Ray>>
     
     init {
-        this.forward = (target - origin).normalize()
-        this.right = (forward x up).normalize()
-        this.up = right x forward
-        this.h = atan(Math.toRadians(fov))
-        this.w = (width.toDouble() / height.toDouble()) * h
+        this.forward = (target - origin).normalized()
+        this.right = (forward.crossed(up)).normalized()
+        this.up = right.crossed(forward)
+        this.h = atan(Math.toRadians(fov.toDouble())).toFloat()
+        this.w = (width.toFloat() / height.toFloat()) * h
         this.rayCache = createRayCache(width, height)
     }
     
@@ -35,14 +40,14 @@ internal class Camera(val origin: Point3d, fov: Double, target: Vector3d, up: Ve
      * Creates a ray from the camera's origin to the given pixel coordinates.
      */
     private fun makeRay(pixelX: Int, pixelY: Int, imageWidth: Int, imageHeight: Int): Ray {
-        val x = (2.0 * pixelX) / imageWidth - 1.0
-        val y = (2.0 * (imageHeight - pixelY)) / imageHeight - 1.0
+        val x = (2f * pixelX) / imageWidth - 1f
+        val y = (2f * (imageHeight - pixelY)) / imageHeight - 1f
         
         return makeRay(x, y)
     }
     
     // x and y between -1 and 1
-    private fun makeRay(x: Double, y: Double): Ray {
+    private fun makeRay(x: Float, y: Float): Ray {
         val direction = (forward + right * w * x + up * h * y).normalize()
         return Ray(origin, direction)
     }

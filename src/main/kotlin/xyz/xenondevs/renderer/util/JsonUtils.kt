@@ -147,6 +147,9 @@ internal fun <T : MutableCollection<String>> JsonArray.getAllStringsTo(destinati
 internal fun JsonArray.getAllDoubles() =
     filter(JsonElement::isNumber).map { it.asDouble }
 
+internal fun JsonArray.getAllFloats() =
+    filter(JsonElement::isNumber).map { it.asFloat }
+
 internal fun JsonArray.getAllInts() =
     filter(JsonElement::isNumber).map { it.asInt }
 

@@ -1,5 +1,6 @@
 package xyz.xenondevs.renderer.scene
 
+import org.joml.Vector3f
 import xyz.xenondevs.renderer.model.Axis
 import xyz.xenondevs.renderer.model.GeometricalModel
 import xyz.xenondevs.renderer.scene.camera.Camera
@@ -7,7 +8,9 @@ import xyz.xenondevs.renderer.scene.camera.Ray
 import xyz.xenondevs.renderer.scene.geometry.GeometryObject
 import xyz.xenondevs.renderer.util.scale
 import xyz.xenondevs.renderer.util.translate
-import xyz.xenondevs.renderer.vector.Vector3d
+import xyz.xenondevs.renderer.vector.Vector3f
+import xyz.xenondevs.renderer.vector.Vectors
+import xyz.xenondevs.renderer.vector.rotate
 import java.awt.image.BufferedImage
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -16,8 +19,8 @@ internal class Scene(
     private val model: GeometricalModel,
     private val width: Int,
     private val height: Int,
-    cameraDistance: Double,
-    fov: Double,
+    cameraDistance: Float,
+    fov: Float,
     private val cropVertical: Double,
     private val cropHorizontal: Double
 ) {
@@ -26,10 +29,10 @@ internal class Scene(
     val camera: Camera
     
     init {
-        val camPos = Vector3d(0.0, 0.0, cameraDistance)
-            .rotate(Vector3d.ZERO, Axis.X, -model.rotation.x)
-            .rotate(Vector3d.ZERO, Axis.Y, -model.rotation.y)
-        camera = Camera(camPos, fov, Vector3d.ZERO, Vector3d(0, 1, 0), width, height)
+        val camPos = Vector3f(0f, 0f, cameraDistance)
+            .rotate(Vectors.ZERO, Axis.X, -model.rotation.x)
+            .rotate(Vectors.ZERO, Axis.Y, -model.rotation.y)
+        camera = Camera(camPos, fov, Vectors.ZERO, Vector3f(0, 1, 0), width, height)
         objects = model.toSceneGeometry(this)
     }
     

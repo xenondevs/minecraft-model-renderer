@@ -1,20 +1,21 @@
 package xyz.xenondevs.renderer.scene.geometry.rectangle
 
+import org.joml.Vector3f
 import xyz.xenondevs.renderer.model.ElementRotation
 import xyz.xenondevs.renderer.scene.Scene
 import xyz.xenondevs.renderer.scene.camera.Intersection
 import xyz.xenondevs.renderer.scene.camera.Ray
-import xyz.xenondevs.renderer.vector.Point3d
-import xyz.xenondevs.renderer.vector.Vector3d
+import xyz.xenondevs.renderer.vector.Point3f
+import xyz.xenondevs.renderer.vector.minus
 import java.awt.image.BufferedImage
 import kotlin.math.min
 
 internal class TexturedRectangle(
     scene: Scene,
-    origin: Point3d,
-    uVec: Vector3d,
-    vVec: Vector3d,
-    normal: Vector3d,
+    origin: Point3f,
+    uVec: Vector3f,
+    vVec: Vector3f,
+    normal: Vector3f,
     val textureFront: BufferedImage,
     val textureBack: BufferedImage,
     ambientOcclusion: Boolean,
@@ -23,10 +24,10 @@ internal class TexturedRectangle(
     
     constructor(
         scene: Scene,
-        origin: Point3d,
-        uVec: Vector3d,
-        vVec: Vector3d,
-        normal: Vector3d,
+        origin: Point3f,
+        uVec: Vector3f,
+        vVec: Vector3f,
+        normal: Vector3f,
         textureFront: BufferedImage,
         ambientOcclusion: Boolean,
         rot: ElementRotation?,
@@ -54,7 +55,7 @@ internal class TexturedRectangle(
         val texY = min((texture.height - v * texture.height).toInt(), texture.height - 1)
         
         val color = texture.getRGB(texX, texY)
-        return Intersection(this.multiplier, intersection.second, color)
+        return Intersection(this.multiplier.toFloat(), intersection.second, color)
     }
     
     override fun toString(): String {

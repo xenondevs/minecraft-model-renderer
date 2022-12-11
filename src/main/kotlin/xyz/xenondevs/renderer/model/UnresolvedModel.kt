@@ -1,26 +1,30 @@
 package xyz.xenondevs.renderer.model
 
 import com.google.gson.JsonObject
+import org.joml.Vector3f
 import xyz.xenondevs.renderer.model.cache.TextureCache
 import xyz.xenondevs.renderer.model.resource.ResourceId
 import xyz.xenondevs.renderer.model.resource.ResourceLoader
 import xyz.xenondevs.renderer.util.getAllDoubles
+import xyz.xenondevs.renderer.util.getAllFloats
 import xyz.xenondevs.renderer.util.getBoolean
-import xyz.xenondevs.renderer.util.getDouble
+import xyz.xenondevs.renderer.util.getFloat
 import xyz.xenondevs.renderer.util.getInt
 import xyz.xenondevs.renderer.util.getOrNull
 import xyz.xenondevs.renderer.util.getString
-import xyz.xenondevs.renderer.vector.Vector3d
+import xyz.xenondevs.renderer.vector.Vectors
+import xyz.xenondevs.renderer.vector.divided
+import xyz.xenondevs.renderer.vector.toFloatArray
 import java.awt.image.BufferedImage
 
-private fun JsonObject.getVector3d(name: String): Vector3d {
-    val values = getAsJsonArray(name).getAllDoubles()
-    return Vector3d(values[0], values[1], values[2])
+private fun JsonObject.getVector3f(name: String): Vector3f {
+    val values = getAsJsonArray(name).getAllFloats()
+    return Vector3f(values[0], values[1], values[2])
 }
 
-private fun JsonObject.getVector3dOrNull(name: String): Vector3d? {
-    val values = getOrNull(name)?.asJsonArray?.getAllDoubles() ?: return null
-    return Vector3d(values[0], values[1], values[2])
+private fun JsonObject.getVector3fOrNull(name: String): Vector3f? {
+    val values = getOrNull(name)?.asJsonArray?.getAllFloats() ?: return null
+    return Vector3f(values[0], values[1], values[2])
 }
 
 internal class UnresolvedModel(id: ResourceId, val loader: ResourceLoader, obj: JsonObject) {
@@ -39,15 +43,15 @@ internal class UnresolvedModel(id: ResourceId, val loader: ResourceLoader, obj: 
     private val elements: List<UnresolvedElement> = obj.getOrNull("elements")?.asJsonArray?.map { UnresolvedElement(this, it.asJsonObject) } ?: emptyList()
     
     val ambientOcclusion: Boolean?
-    val rotation: Vector3d?
-    val translation: Vector3d?
-    val scale: Vector3d?
+    val rotation: Vector3f?
+    val translation: Vector3f?
+    val scale: Vector3f?
     
     init {
         val guiObject = obj.getOrNull("display")?.asJsonObject?.getOrNull("gui")?.asJsonObject
-        rotation = guiObject?.getVector3dOrNull("rotation")
-        translation = guiObject?.getVector3dOrNull("translation")
-        scale = guiObject?.getVector3dOrNull("scale")
+        rotation = guiObject?.getVector3fOrNull("rotation")
+        translation = guiObject?.getVector3fOrNull("translation")
+        scale = guiObject?.getVector3fOrNull("scale")
         ambientOcclusion = obj.getBoolean("ambientocclusion")
     }
     
@@ -57,9 +61,9 @@ internal class UnresolvedModel(id: ResourceId, val loader: ResourceLoader, obj: 
         var textures = HashMap<String, String>()
         
         var ambientOcclusion: Boolean? = null
-        var rotation: Vector3d? = this.rotation
-        var translation: Vector3d? = this.translation
-        var scale: Vector3d? = this.scale
+        var rotation: Vector3f? = this.rotation
+        var translation: Vector3f? = this.translation
+        var scale: Vector3f? = this.scale
         
         var layered = false
         var current: UnresolvedModel? = this
@@ -112,9 +116,9 @@ internal class UnresolvedModel(id: ResourceId, val loader: ResourceLoader, obj: 
             return GeometricalModel(
                 resolvedElements,
                 ambientOcclusion ?: true,
-                rotation ?: Vector3d.ZERO,
-                translation ?: Vector3d.ZERO,
-                scale ?: Vector3d.ONE
+                rotation ?: Vectors.ZERO,
+                translation ?: Vectors.ZERO,
+                scale ?: Vectors.ONE
             )
         }
     }
@@ -123,8 +127,8 @@ internal class UnresolvedModel(id: ResourceId, val loader: ResourceLoader, obj: 
 
 internal class UnresolvedElement(val model: UnresolvedModel, obj: JsonObject) {
     
-    val from: Vector3d = obj.getVector3d("from") / 16.0
-    val to: Vector3d = obj.getVector3d("to") / 16.0
+    val from: Vector3f = obj.getVector3f("from").divided(16f)
+    val to: Vector3f = obj.getVector3f("to").divided(16f)
     
     private val rotation: ElementRotation?
     
@@ -137,9 +141,9 @@ internal class UnresolvedElement(val model: UnresolvedModel, obj: JsonObject) {
     init {
         rotation = obj.getOrNull("rotation")?.asJsonObject?.let {
             ElementRotation(
-                it.getVector3d("origin") / 16.0,
+                it.getVector3f("origin").divided(16f),
                 Axis.valueOf(it.getString("axis")!!.uppercase()),
-                it.getDouble("angle")!!,
+                it.getFloat("angle")!!,
                 it.getBoolean("rescale", false)
             )
         }
@@ -199,8 +203,8 @@ internal class UnresolvedTexture(val element: UnresolvedElement, direction: Dire
     }
     
     private fun getDynamicUV(parent: UnresolvedElement, direction: Direction): DoubleArray {
-        val fromPos = parent.from.toDoubleArray().map { it - 0.5 }
-        val toPos = parent.to.toDoubleArray().map { it - 0.5 }
+        val fromPos = parent.from.toFloatArray().map { it - 0.5 }
+        val toPos = parent.to.toFloatArray().map { it - 0.5 }
         
         val axisHor: Int // horizontal axis
         val axisVert: Int // vertical axis

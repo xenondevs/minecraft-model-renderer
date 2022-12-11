@@ -1,34 +1,39 @@
 package xyz.xenondevs.renderer.model
 
+import org.joml.Vector3f
 import xyz.xenondevs.renderer.scene.Scene
 import xyz.xenondevs.renderer.scene.geometry.Cuboid
 import xyz.xenondevs.renderer.scene.geometry.GeometryObject
-import xyz.xenondevs.renderer.vector.Vector3d
+import xyz.xenondevs.renderer.vector.Vectors
+import xyz.xenondevs.renderer.vector.minus
+import xyz.xenondevs.renderer.vector.plus
+import xyz.xenondevs.renderer.vector.times
+import xyz.xenondevs.renderer.vector.unaryMinus
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 
-internal data class ElementRotation(val origin: Vector3d, val axis: Axis, val angle: Double, val rescale: Boolean) {
+internal data class ElementRotation(val origin: Vector3f, val axis: Axis, val angle: Float, val rescale: Boolean) {
     
-    fun offset(scale: Vector3d, translation: Vector3d): ElementRotation {
+    fun offset(scale: Vector3f, translation: Vector3f): ElementRotation {
         return copy(origin = (origin * scale) + translation)
     }
     
 }
 
-internal data class Element(val from: Vector3d, val to: Vector3d, val rotation: ElementRotation?, val faces: Map<Direction, BufferedImage>)
+internal data class Element(val from: Vector3f, val to: Vector3f, val rotation: ElementRotation?, val faces: Map<Direction, BufferedImage>)
 
 sealed interface Model
 
 internal class GeometricalModel(
     private val elements: List<Element>,
     val ambientOcclusion: Boolean,
-    val rotation: Vector3d,
-    val translation: Vector3d,
-    val scale: Vector3d
+    val rotation: Vector3f,
+    val translation: Vector3f,
+    val scale: Vector3f
 ): Model {
     
     fun toSceneGeometry(scene: Scene): List<GeometryObject> {
-        val translation = -Vector3d.HALF * scale
+        val translation = -Vectors.HALF * scale
         return elements.map { element ->
             Cuboid(
                 scene,
@@ -37,7 +42,7 @@ internal class GeometricalModel(
                 element.faces,
                 element.rotation?.offset(scale, translation),
                 ambientOcclusion
-            ).apply { applyRotation(ElementRotation(Vector3d.ZERO, Axis.Z, rotation.z, false)) }
+            ).apply { applyRotation(ElementRotation(Vectors.ZERO, Axis.Z, rotation.z, false)) }
         }
     }
     

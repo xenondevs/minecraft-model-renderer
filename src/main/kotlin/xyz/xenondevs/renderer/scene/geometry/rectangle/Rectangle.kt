@@ -1,11 +1,15 @@
 package xyz.xenondevs.renderer.scene.geometry.rectangle
 
+import org.joml.Intersectionf
+import org.joml.Vector3f
 import xyz.xenondevs.renderer.model.ElementRotation
 import xyz.xenondevs.renderer.scene.Scene
 import xyz.xenondevs.renderer.scene.camera.Ray
 import xyz.xenondevs.renderer.scene.geometry.GeometryObject
-import xyz.xenondevs.renderer.vector.Point3d
-import xyz.xenondevs.renderer.vector.Vector3d
+import xyz.xenondevs.renderer.vector.Point3f
+import xyz.xenondevs.renderer.vector.minus
+import xyz.xenondevs.renderer.vector.plus
+import xyz.xenondevs.renderer.vector.rotate
 import kotlin.math.acos
 
 private const val BRIGHTNESS_MULTIPLIER = 1.0
@@ -13,10 +17,10 @@ private const val DARKNESS_MULTIPLIER = 0.3
 
 internal abstract class Rectangle(
     override val scene: Scene,
-    var origin: Point3d,
-    var uVec: Vector3d,
-    var vVec: Vector3d,
-    var normal: Vector3d,
+    var origin: Point3f,
+    var uVec: Vector3f,
+    var vVec: Vector3f,
+    var normal: Vector3f,
     rot: ElementRotation?,
     var ambientOcclusion: Boolean
 ) : GeometryObject {
@@ -24,7 +28,7 @@ internal abstract class Rectangle(
     protected var multiplier: Double = 0.0
     
     init {
-        ambientOcclusion = !(rot != null && rot.angle != 0.0)
+        ambientOcclusion = !(rot != null && rot.angle != 0f)
         
         applyRotation(rot)
     }
@@ -42,7 +46,7 @@ internal abstract class Rectangle(
             vVec = vPoint.rotate(rotationOrigin, axis, degrees) - origin
             normal = normalPoint.rotate(rotationOrigin, axis, degrees) - origin
         }
-        
+      
         multiplier = if (ambientOcclusion) {
             val dif = acos(normal.dot(scene.camera.right)) % Math.PI
             if (dif < Math.PI / 2) {
@@ -51,22 +55,18 @@ internal abstract class Rectangle(
         } else BRIGHTNESS_MULTIPLIER
     }
     
-    protected fun traceToVector(ray: Ray): Pair<Vector3d, Double>? {
+    protected fun traceToVector(ray: Ray): Pair<Vector3f, Float>? {
         val (start, direction) = ray
         
-        val denom = normal.x * direction.x + normal.y * direction.y + normal.z * direction.z
-        if (denom > 0)
-            return null
-        
-        val t = ((origin.x - ray.origin.x) * normal.x + (origin.y - ray.origin.y) * normal.y + (origin.z - ray.origin.z) * normal.z) / denom
+        val t = Intersectionf.intersectRayPlane(ray.origin, ray.direction, origin, normal, 0f)
         
         if (t < 0 || t.isInfinite() || t.isNaN())
             return null
         
-        return Vector3d(
-            x = start.x + direction.x * t,
-            y = start.y + direction.y * t,
-            z = start.z + direction.z * t
+        return Vector3f(
+            start.x + direction.x * t,
+            start.y + direction.y * t,
+            start.z + direction.z * t
         ) to t
     }
     

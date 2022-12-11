@@ -17,8 +17,8 @@ class MinecraftModelRenderer(
     private val exportHeight: Int,
     resourcePacks: List<Path>,
     useInternalResources: Boolean = true,
-    private val cameraDistance: Double = 40.0,
-    private val fov: Double = 0.95,
+    private val cameraDistance: Float = 40f,
+    private val fov: Float = 0.95f,
     private val cropVertical: Double = 0.1,
     private val cropHorizontal: Double = 0.1
 ) {
