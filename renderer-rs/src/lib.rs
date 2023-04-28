@@ -10,7 +10,8 @@ mod model;
 static mut JNI_ENV: Option<*mut JNIEnv> = None;
 
 #[allow(non_snake_case)]
-pub extern "system" fn Xyz_xenondevs_renderer_Renderer_start(env: JNIEnv, _: JClass) {
+#[no_mangle]
+pub extern "system" fn Java_Xyz_xenondevs_renderer_Renderer_start(env: JNIEnv, _: JClass) {
     unsafe {
         JNI_ENV = Some(Box::into_raw(Box::new(env)));
     }
