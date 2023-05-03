@@ -9,7 +9,7 @@
     <version>2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>renderer-skeleton</module>
+        <module>renderer-bindings</module>
     </modules>
 
 
