@@ -8,6 +8,7 @@ import java.nio.file.Path
 import kotlin.io.path.extension
 import kotlin.io.path.isDirectory
 
+@Suppress("unused") // Used by JNI
 class MinecraftModelRenderer(
     private val renderWidth: Int,
     private val renderHeight: Int,

@@ -1,6 +1,6 @@
-use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
+use image::{DynamicImage, GenericImageView, ImageBuffer};
 
-pub fn get_with_uv(image: DynamicImage, from_x: i32, from_y: i32, to_x: i32, to_y: i32) -> DynamicImage {
+pub fn get_with_uv(image: &DynamicImage, from_x: i32, from_y: i32, to_x: i32, to_y: i32) -> DynamicImage {
     let width = (to_x - from_x).abs() as u32;
     let height = (to_y - from_y).abs() as u32;
     let mut new_image = ImageBuffer::new(width.max(1), height.max(1));

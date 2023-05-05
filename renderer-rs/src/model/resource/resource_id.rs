@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::hash::{Hash, Hasher};
 
 use lazy_static::lazy_static;
@@ -5,8 +6,8 @@ use regex::Regex;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ResourceId {
-    namespace: String,
-    path: String,
+    pub namespace: String,
+    pub path: String,
     id: String,
 }
 
@@ -22,11 +23,7 @@ impl ResourceId {
 
     pub fn new_string(namespace: String, path: String) -> ResourceId {
         let id = format!("{}:{}", namespace, path);
-        Self {
-            namespace,
-            path,
-            id,
-        }
+        Self { namespace, path, id, }
     }
 
     pub fn of(id: &str) -> Result<ResourceId, String> {
@@ -49,8 +46,8 @@ impl Hash for ResourceId {
     }
 }
 
-impl ToString for ResourceId {
-    fn to_string(&self) -> String {
-        self.id.clone()
+impl Display for ResourceId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{}", self.namespace, self.path)
     }
 }
