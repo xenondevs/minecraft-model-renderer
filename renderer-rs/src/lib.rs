@@ -14,7 +14,7 @@ struct MinecraftModelRenderer<'a> {
     render_height: i32,
     export_width: i32,
     export_height: i32,
-    resource_loader: ResourceManager<'a>,
+    resource_loader: ResourceManager,
     camera_distance: f64,
     fov: f64,
     crop_vertical: f64,

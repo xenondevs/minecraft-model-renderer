@@ -1,5 +1,7 @@
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
+use std::ops::Deref;
 
 use image::DynamicImage;
 use imageproc::geometric_transformations::{Interpolation, rotate_about_center};
@@ -28,14 +30,14 @@ impl ResourcePack {
     }
 }
 
-pub struct ResourceManager<'a> {
+pub struct ResourceManager {
     packs: Vec<ResourcePack>,
-    model_cache: ModelCache<'a>,
+    model_cache: ModelCache,
     texture_cache: TextureCache,
 }
 
-impl<'a> ResourceManager<'a> {
-    pub fn new(packs: Vec<ResourcePack>) -> ResourceManager<'a> {
+impl ResourceManager {
+    pub fn new(packs: Vec<ResourcePack>) -> ResourceManager {
         Self {
             packs,
             model_cache: ModelCache::new(),
@@ -133,12 +135,12 @@ impl<'a> ResourceManager<'a> {
     }
 }
 
-struct ModelCache<'a> {
-    cache: HashMap<ResourceId, UnresolvedModel<'a>>,
+struct ModelCache {
+    cache: HashMap<ResourceId, UnresolvedModel>,
 }
 
-impl<'a> ModelCache<'a> {
-    fn new() -> ModelCache<'a> {
+impl ModelCache {
+    fn new() -> ModelCache {
         Self { cache: HashMap::new() }
     }
 }

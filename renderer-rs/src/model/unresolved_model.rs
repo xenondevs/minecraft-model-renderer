@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Div;
 
@@ -25,25 +26,59 @@ fn as_vector_safe(json: &Value) -> Option<Vector3d> {
 }
 
 #[derive(Clone)]
-pub struct UnresolvedModel<'a> {
+pub struct UnresolvedModel {
     layered: bool,
-    parent: Option<Box<UnresolvedModel<'a>>>,
+    parent: Option<Box<UnresolvedModel>>,
     texture_names: HashMap<String, String>,
-    elements: Vec<UnresolvedElement<'a>>,
+    elements: Vec<UnresolvedElement>,
     ambient_occlusion: bool,
     rotation: Option<Vector3d>,
     translation: Option<Vector3d>,
     scale: Option<Vector3d>,
 }
 
-impl UnresolvedModel<'_> {
-    pub fn new<'a>(env: &mut JNIEnv, manager: &mut ResourceManager, id: ResourceId, json: &Value) -> UnresolvedModel<'a> {
+impl UnresolvedModel {
+    pub fn new(env: &mut JNIEnv, manager: &mut ResourceManager, id: ResourceId, json: &Value) -> UnresolvedModel {
         let (parent, layered) = Self::find_parent(env, manager, &id, json);
         let textures = Self::parse_textures(json);
-        panic!()
+        let elements: Vec<UnresolvedElement> = Vec::new();
+
+        let mut rotation = None;
+        let mut translation = None;
+        let mut scale = None;
+        let mut ambient_occlusion = true;
+
+        if let Some(gui_json) = json["display"]["gui"].as_object() {
+            if let Some(rotation_json) = gui_json.get("rotation") {
+                rotation = as_vector_safe(rotation_json)
+            }
+            if let Some(translation_json) = gui_json.get("translation") {
+                translation = as_vector_safe(translation_json)
+            }
+            if let Some(scale_json) = gui_json.get("scale") {
+                scale = as_vector_safe(scale_json)
+            }
+            if let Some(ambient_occlusion_json) = gui_json.get("ambientocclusion") {
+                ambient_occlusion = ambient_occlusion_json.as_bool().unwrap_or(true);
+            }
+        }
+
+        let mut model = UnresolvedModel {
+            layered,
+            parent: parent.map(|model| Box::new(model)),
+            texture_names: textures,
+            elements,
+            ambient_occlusion,
+            rotation,
+            translation,
+            scale,
+        };
+
+        Self::parse_elements(&mut model, json);
+        model
     }
 
-    fn find_parent<'a>(env: &mut JNIEnv, manager: &'a mut ResourceManager<'_>, id: &ResourceId, json: &Value) -> (Option<UnresolvedModel<'a>>, bool) {
+    fn find_parent<'a>(env: &mut JNIEnv, manager: &'a mut ResourceManager, id: &ResourceId, json: &Value) -> (Option<UnresolvedModel>, bool) {
         return if let Some(parent_name) = json["parent"].as_str() {
             let parent_id = ResourceId::of(parent_name)
                 .unwrap_or_else(|_| panic!("Invalid parent id: {}", parent_name));
@@ -72,19 +107,26 @@ impl UnresolvedModel<'_> {
         textures.remove("particle");
         textures
     }
+
+    fn parse_elements(model: &mut UnresolvedModel, json: &Value) {
+        if let Some(array) = json["elements"].as_array() {
+            for element_json in array {
+                model.elements.push(UnresolvedElement::new(element_json));
+            }
+        }
+    }
 }
 
 #[derive(Clone)]
-pub struct UnresolvedElement<'a> {
-    model: &'a UnresolvedModel<'a>,
+pub struct UnresolvedElement {
     from: Vector3d,
     to: Vector3d,
     rotation: Option<ElementRotation>,
     faces: HashMap<Direction, UnresolvedTexture>,
 }
 
-impl<'a> UnresolvedElement<'a> {
-    pub fn new(model: &'a UnresolvedModel<'a>, json: &Value) -> UnresolvedElement<'a> {
+impl UnresolvedElement {
+    pub fn new(json: &Value) -> UnresolvedElement {
         let from = as_vector(&json["from"]) / 16.0;
         let to = as_vector(&json["to"]) / 16.0;
         let rotation =
@@ -100,7 +142,7 @@ impl<'a> UnresolvedElement<'a> {
             } else { None };
         let mut faces = HashMap::new();
 
-        let mut element = UnresolvedElement { model, from, to, rotation, faces };
+        let mut element = UnresolvedElement { from, to, rotation, faces };
 
         if let Some(faces_json) = json["faces"].as_object() {
             for (key, value) in faces_json {
