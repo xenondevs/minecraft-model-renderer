@@ -1,4 +1,3 @@
-use std::arch::x86_64::_mm_move_epi64;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
@@ -29,14 +28,14 @@ impl ResourcePack {
     }
 }
 
-pub struct ResourceManager {
+pub struct ResourceManager<'a> {
     packs: Vec<ResourcePack>,
-    model_cache: ModelCache,
+    model_cache: ModelCache<'a>,
     texture_cache: TextureCache,
 }
 
-impl ResourceManager {
-    pub fn new(packs: Vec<ResourcePack>) -> ResourceManager {
+impl<'a> ResourceManager<'a> {
+    pub fn new(packs: Vec<ResourcePack>) -> ResourceManager<'a> {
         Self {
             packs,
             model_cache: ModelCache::new(),
@@ -62,6 +61,18 @@ impl ResourceManager {
         let image = image::load_from_memory(&bytes).unwrap();
         self.texture_cache.image_cache.insert(id.clone(), image.clone());
         image
+    }
+
+    pub fn get_model(&mut self, env: &mut JNIEnv, id: &ResourceId) -> UnresolvedModel where {
+        if let Some(model) = self.model_cache.cache.get(&id) {
+            return model.clone();
+        }
+        let bytes = self.get_model_bytes(env, &id);
+        let json = serde_json::from_slice(&bytes)
+            .unwrap_or_else(|_| panic!("Invalid json for model {}", id));
+        let model = UnresolvedModel::new(env, self, id.clone(), &json);
+        self.model_cache.cache.insert(id.clone(), model.clone());
+        model
     }
 
     pub fn get_texture_with_options(
@@ -122,12 +133,12 @@ impl ResourceManager {
     }
 }
 
-struct ModelCache {
-    cache: HashMap<ResourceId, UnresolvedModel>,
+struct ModelCache<'a> {
+    cache: HashMap<ResourceId, UnresolvedModel<'a>>,
 }
 
-impl ModelCache {
-    fn new() -> ModelCache {
+impl<'a> ModelCache<'a> {
+    fn new() -> ModelCache<'a> {
         Self { cache: HashMap::new() }
     }
 }

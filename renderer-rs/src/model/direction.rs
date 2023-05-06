@@ -1,6 +1,8 @@
+use std::str::FromStr;
 use na::Vector3;
 
-enum Direction {
+#[derive(Clone, Eq, PartialEq, Hash)]
+pub enum Direction {
     NORTH,
     EAST,
     SOUTH,
@@ -11,7 +13,7 @@ enum Direction {
 
 impl Direction {
 
-    fn axis(&self) -> Axis {
+    pub fn axis(&self) -> Axis {
         match self {
             Direction::NORTH => Axis::Z,
             Direction::EAST => Axis::X,
@@ -22,7 +24,7 @@ impl Direction {
         }
     }
 
-    fn normal(&self) -> Vector3<f64> {
+    pub fn normal(&self) -> Vector3<f64> {
         match self {
             Direction::NORTH => Vector3::new(0.0, 0.0, -1.0),
             Direction::EAST => Vector3::new(1.0, 0.0, 0.0),
@@ -35,15 +37,46 @@ impl Direction {
 
 }
 
-enum Axis {
+impl FromStr for Direction {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "NORTH" => Ok(Direction::NORTH),
+            "EAST" => Ok(Direction::EAST),
+            "SOUTH" => Ok(Direction::SOUTH),
+            "WEST" => Ok(Direction::WEST),
+            "UP" => Ok(Direction::UP),
+            "DOWN" => Ok(Direction::DOWN),
+            _ => Err(format!("Invalid direction: {}", s))
+        }
+    }
+}
+
+#[derive(Clone)]
+pub enum Axis {
     X,
     Y,
     Z
 }
 
-struct ElementRotation {
-    origin: Vector3<f64>,
-    axis: Axis,
-    angle: f64,
-    rescale: bool
+impl FromStr for Axis {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "X" => Ok(Axis::X),
+            "Y" => Ok(Axis::Y),
+            "Z" => Ok(Axis::Z),
+            _ => Err(format!("Invalid axis: {}", s))
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct ElementRotation {
+    pub origin: Vector3<f64>,
+    pub axis: Axis,
+    pub angle: f64,
+    pub rescale: bool
 }
