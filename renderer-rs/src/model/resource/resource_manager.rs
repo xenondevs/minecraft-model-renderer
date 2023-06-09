@@ -4,7 +4,8 @@ use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 
 use image::DynamicImage;
-use imageproc::geometric_transformations::{Interpolation, rotate_about_center};
+use image::imageops::rotate90;
+use imageproc::geometric_transformations::{Interpolation, rotate, rotate_about_center};
 use jni::JNIEnv;
 use jni::objects::{JByteArray, JObject, JValue};
 use jni::sys::jobject;
@@ -65,7 +66,7 @@ impl ResourceManager {
         image
     }
 
-    pub fn get_model(&mut self, env: &mut JNIEnv, id: &ResourceId) -> UnresolvedModel where {
+    pub fn get_model(&mut self, env: &mut JNIEnv, id: &ResourceId) -> UnresolvedModel {
         if let Some(model) = self.model_cache.cache.get(&id) {
             return model.clone();
         }
@@ -110,8 +111,9 @@ impl ResourceManager {
         // apply rotation via imageproc
         if rotation != 0 {
             image = DynamicImage::ImageRgba8(
-                rotate_about_center(
+                rotate(
                     &image.to_rgba8(),
+                    ((image.width() - 1) as f32 / 2.0, (image.height() - 1) as f32 / 2.0),
                     rotation as f32,
                     Interpolation::Nearest,
                     image::Rgba([0, 0, 0, 0]),

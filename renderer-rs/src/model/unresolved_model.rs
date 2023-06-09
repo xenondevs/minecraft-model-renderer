@@ -143,7 +143,6 @@ impl UnresolvedElement {
         let mut faces = HashMap::new();
 
         let mut element = UnresolvedElement { from, to, rotation, faces };
-
         if let Some(faces_json) = json["faces"].as_object() {
             for (key, value) in faces_json {
                 let direction = key.to_string().to_uppercase().parse::<Direction>()

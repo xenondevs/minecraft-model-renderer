@@ -1,9 +1,17 @@
 extern crate nalgebra as na;
 
+use std::f32::consts::PI;
+use std::io::Cursor;
+
+use image::DynamicImage;
+use image::imageops::rotate90;
+use imageproc::geometric_transformations::{Interpolation, rotate, rotate_about_center};
 use jni::JNIEnv;
 use jni::objects::{JObject, JObjectArray, JValue, JValueGen};
 
+use crate::model::resource::resource_id::ResourceId;
 use crate::model::resource::resource_manager::{ResourceManager, ResourcePack};
+use crate::util::image::get_with_uv;
 use crate::util::jni::{object_array_to_vec, string_array_to_vec};
 
 pub mod model;
@@ -14,7 +22,7 @@ struct MinecraftModelRenderer<'a> {
     render_height: i32,
     export_width: i32,
     export_height: i32,
-    resource_loader: ResourceManager,
+    resource_manager: ResourceManager,
     camera_distance: f64,
     fov: f64,
     crop_vertical: f64,
@@ -36,25 +44,25 @@ impl MinecraftModelRenderer<'_> {
         let packs = JObjectArray::from(env.get_field(
             &renderer_object,
             "resourcePacks",
-            "[Lxyz/xenondevs/renderer/resource/ResourcePack;"
+            "[Lxyz/xenondevs/renderer/resource/ResourcePack;",
         ).unwrap().l().unwrap());
         let packs_vec = object_array_to_vec(env, &packs).unwrap()
             .iter()
             .map(|obj| ResourcePack::new(*obj))
             .collect();
-        let resource_loader = ResourceManager::new(packs_vec);
+        let resource_manager = ResourceManager::new(packs_vec);
 
         MinecraftModelRenderer {
             render_width,
             render_height,
             export_width,
             export_height,
-            resource_loader,
+            resource_manager,
             camera_distance,
             fov,
             crop_vertical,
             crop_horizontal,
-            pipeline
+            pipeline,
         }
     }
 
