@@ -140,7 +140,7 @@ impl UnresolvedElement {
                     rescale: rotation_json["rescale"].as_bool().unwrap_or(false),
                 })
             } else { None };
-        let mut faces = HashMap::new();
+        let faces = HashMap::new();
 
         let mut element = UnresolvedElement { from, to, rotation, faces };
         if let Some(faces_json) = json["faces"].as_object() {

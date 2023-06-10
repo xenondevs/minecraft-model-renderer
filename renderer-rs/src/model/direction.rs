@@ -1,5 +1,8 @@
 use std::str::FromStr;
-use na::Vector3;
+
+use na::{OVector, U3, Unit, Vector3};
+
+use crate::util::math::Vector3d;
 
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub enum Direction {
@@ -8,11 +11,10 @@ pub enum Direction {
     SOUTH,
     WEST,
     UP,
-    DOWN
+    DOWN,
 }
 
 impl Direction {
-
     pub fn axis(&self) -> Axis {
         match self {
             Direction::NORTH => Axis::Z,
@@ -34,7 +36,6 @@ impl Direction {
             Direction::DOWN => Vector3::new(0.0, -1.0, 0.0),
         }
     }
-
 }
 
 impl FromStr for Direction {
@@ -57,7 +58,17 @@ impl FromStr for Direction {
 pub enum Axis {
     X,
     Y,
-    Z
+    Z,
+}
+
+impl Axis {
+    pub fn normalized(&self) -> Unit<OVector<f64, U3>> {
+        match self {
+            Axis::X => Vector3d::x_axis(),
+            Axis::Y => Vector3d::y_axis(),
+            Axis::Z => Vector3d::z_axis(),
+        }
+    }
 }
 
 impl FromStr for Axis {
@@ -78,5 +89,16 @@ pub struct ElementRotation {
     pub origin: Vector3<f64>,
     pub axis: Axis,
     pub angle: f64,
-    pub rescale: bool
+    pub rescale: bool,
+}
+
+impl ElementRotation {
+
+    fn offset(self, scale: Vector3d, translation: Vector3d) -> Self {
+        Self {
+            origin: (self.origin.component_mul(&scale)) + translation,
+            ..self
+        }
+    }
+
 }

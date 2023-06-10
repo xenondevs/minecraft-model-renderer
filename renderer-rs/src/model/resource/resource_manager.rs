@@ -1,11 +1,8 @@
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
-use std::ops::Deref;
 
 use image::DynamicImage;
-use image::imageops::rotate90;
-use imageproc::geometric_transformations::{Interpolation, rotate, rotate_about_center};
+use imageproc::geometric_transformations::{Interpolation, rotate};
 use jni::JNIEnv;
 use jni::objects::{JByteArray, JObject, JValue};
 use jni::sys::jobject;
